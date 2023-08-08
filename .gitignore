@@ -47,3 +47,5 @@ _deps
 
 .env
 .vscode
+CMakeLists.txt
+Gravity_Engine.bat
