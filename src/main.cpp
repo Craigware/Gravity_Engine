@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <cstring>
 #include <cstdlib>
+#include <vector>
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
@@ -23,6 +25,16 @@ class HelloTriangleApplication {
     GLFWwindow* window;
     VkInstance instance;
 
+    const std::vector<const char*> validationLayers = {
+      "VK_LAYER_KHRONOS_validation"
+    };
+
+    #ifdef NDEBUG
+      const bool enableValidationLayers = false;
+    #else
+      const bool enableValidationLayers = true;
+    #endif
+
     void initWindow() {
       glfwInit();
 
@@ -32,11 +44,41 @@ class HelloTriangleApplication {
       window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
     };
 
+    /* Going to have to learn how to compile in debug mode with g++
+    Do not feel like doing that right now. */
+    
+    bool checkValidationLayerSupport() {
+      uint32_t layerCount;
+      vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+      std::vector<VkLayerProperties> availableLayers(layerCount);
+      vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+      for (const char* layerName : validationLayers){
+        bool layerFound = false;
+
+        for (const auto& layerProperties : availableLayers) {
+          if (strcmp(layerName, layerProperties.layerName) == 0){
+            layerFound = true;
+            break;
+          }
+        }
+
+        if (!layerFound) {
+          return false;
+        }
+      }
+      return false;
+    }
+
     void initVulkan() {
       createInstance();
     };
 
     void createInstance() {
+      if (enableValidationLayers && !checkValidationLayerSupport()){
+        throw std::runtime_error("validation layers requested, but not available.");
+      }
+
       VkApplicationInfo appInfo{};
       appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
       appInfo.pApplicationName = "Hello Triangle";
