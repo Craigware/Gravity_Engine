@@ -91,6 +91,13 @@ class HelloTriangleApplication {
       createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
       createInfo.pApplicationInfo = &appInfo;
 
+      if (enableValidationLayers) {
+        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+      } else {
+        createInfo.enabledLayerCount = 0;
+      }
+
       uint32_t glfwExtensionCount = 0;
       const char** glfwExtensions;
 
